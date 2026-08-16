@@ -3,8 +3,9 @@ import React from 'react';
 interface LogoProps {
   className?: string;
   size?: 'sm' | 'md' | 'lg' | 'xl';
-  variant?: 'full' | 'icon' | 'white' | 'horizontal';
+  variant?: 'full' | 'icon' | 'white' | 'horizontal' | 'vertical';
   showSubtitle?: boolean;
+  isWhite?: boolean;
 }
 
 export const Logo: React.FC<LogoProps> = ({
@@ -12,6 +13,7 @@ export const Logo: React.FC<LogoProps> = ({
   size = 'md',
   variant = 'full',
   showSubtitle = false,
+  isWhite: isWhiteProp = false,
 }) => {
   const sizeMap = {
     sm: { icon: 'w-7 h-7', text: 'text-lg', subtitle: 'text-[9px]' },
@@ -20,9 +22,11 @@ export const Logo: React.FC<LogoProps> = ({
     xl: { icon: 'w-24 h-24', text: 'text-4xl', subtitle: 'text-sm' },
   };
 
-  const isWhite = variant === 'white';
+  const isWhite = variant === 'white' || isWhiteProp;
   const navyColor = isWhite ? '#FFFFFF' : '#142C54';
   const orangeColor = '#E56B2F';
+  const margColor = isWhite ? '#FFA066' : '#E56B2F'; // Distinct, luminous orange for 'Marg'
+  const rakshakColor = isWhite ? '#FFFFFF' : '#142C54';
   const lightOrange = '#F4D8C7';
   const greenColor = '#2E6B4A';
 
@@ -120,9 +124,10 @@ export const Logo: React.FC<LogoProps> = ({
           <div className="flex items-center gap-1.5">
             <span
               className={`font-bold tracking-tight ${sizeMap[size].text}`}
-              style={{ color: navyColor, fontFamily: "'Noto Sans', sans-serif" }}
+              style={{ fontFamily: "'Noto Sans', sans-serif" }}
             >
-              Marg<span style={{ color: orangeColor }}>Rakshak</span>
+              <span style={{ color: isWhite ? '#FFA066' : '#142C54' }}>Marg</span>
+              <span style={{ color: isWhite ? '#FFFFFF' : orangeColor }}>Rakshak</span>
             </span>
             <span className="px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-[#E56B2F]/10 text-[#E56B2F] border border-[#E56B2F]/20">
               Nagpur
@@ -146,9 +151,10 @@ export const Logo: React.FC<LogoProps> = ({
       {LogoIcon}
       <span
         className={`font-bold tracking-tight mt-1 ${sizeMap[size].text}`}
-        style={{ color: navyColor, fontFamily: "'Noto Sans', sans-serif" }}
+        style={{ fontFamily: "'Noto Sans', sans-serif" }}
       >
-        Marg<span style={{ color: orangeColor }}>Rakshak</span>
+        <span style={{ color: isWhite ? '#FFA066' : '#142C54' }}>Marg</span>
+        <span style={{ color: isWhite ? '#FFFFFF' : orangeColor }}>Rakshak</span>
       </span>
       {showSubtitle && (
         <span

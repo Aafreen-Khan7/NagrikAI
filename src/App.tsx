@@ -236,32 +236,6 @@ const AppContent: React.FC = () => {
             {/* Hero Carousel */}
             <HeroCarousel />
 
-            {/* Live City Traffic Map Section */}
-            <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
-                <div>
-                  <span className="text-xs font-bold uppercase tracking-wider text-[#E56B2F] block">
-                    Real-Time City Grid
-                  </span>
-                  <h2 className="text-2xl font-extrabold text-[#142C54]">
-                    Nagpur Traffic Risk & Hotspot Monitor
-                  </h2>
-                </div>
-                <button
-                  id="home-view-command-btn"
-                  onClick={() => setActiveView('command-dashboard')}
-                  className="text-xs font-bold text-[#E56B2F] hover:text-[#B94A1F] flex items-center gap-1 self-start sm:self-auto"
-                >
-                  <span>Open Police Command Dashboard</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
-              </div>
-
-              <div className="h-[480px]">
-                <NagpurCityMap heightClass="h-full" />
-              </div>
-            </section>
-
             {/* Citizen Incident Reporting Banner */}
             <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="bg-[#142C54] text-white rounded-2xl p-8 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-6 shadow-md">
@@ -297,14 +271,32 @@ const AppContent: React.FC = () => {
                 </div>
               </div>
             </section>
+
+            {/* About MargRakshak Section on Home Page */}
+            <section id="about-section">
+              <AboutPage />
+            </section>
+
+            {/* How It Works Section on Home Page */}
+            <section id="how-it-works-section">
+              <HowItWorksPage />
+            </section>
           </div>
         )}
 
         {/* PUBLIC ABOUT PAGE */}
-        {activeView === 'about' && <AboutPage />}
+        {activeView === 'about' && (
+          <div id="about-page">
+            <AboutPage />
+          </div>
+        )}
 
         {/* PUBLIC HOW IT WORKS PAGE */}
-        {activeView === 'how-it-works' && <HowItWorksPage />}
+        {activeView === 'how-it-works' && (
+          <div id="how-it-works-page">
+            <HowItWorksPage />
+          </div>
+        )}
 
         {/* PUBLIC REPORT INCIDENT FORM */}
         {activeView === 'report-incident' && <IncidentReportForm />}

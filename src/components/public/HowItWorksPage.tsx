@@ -70,9 +70,6 @@ export const HowItWorksPage: React.FC = () => {
     <div className="max-w-5xl mx-auto px-4 py-10 lg:py-16 space-y-12 select-none">
       {/* Header */}
       <div className="text-center space-y-4 max-w-3xl mx-auto">
-        <span className="text-xs font-bold uppercase tracking-wider text-[#2E6B4A] bg-[#2E6B4A]/10 px-3 py-1 rounded-full border border-[#2E6B4A]/20">
-          Architecture & Operations
-        </span>
         <h1 className="text-3xl sm:text-4xl font-extrabold text-[#142C54] tracking-tight">
           How MargRakshak Works
         </h1>

@@ -15,6 +15,28 @@ export const Navbar: React.FC = () => {
     { id: 'emergency-help', label: 'Emergency Helplines' },
   ];
 
+  const handleNavClick = (linkId: string) => {
+    if (linkId === 'about' || linkId === 'how-it-works') {
+      const sectionId = linkId === 'about' ? 'about-section' : 'how-it-works-section';
+      if (activeView !== 'home') {
+        setActiveView('home');
+        setTimeout(() => {
+          const el = document.getElementById(sectionId);
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }, 100);
+      } else {
+        const el = document.getElementById(sectionId);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }
+    } else {
+      setActiveView(linkId as any);
+    }
+  };
+
   return (
     <header className="sticky top-0 z-40 bg-[#FAF8F4]/90 backdrop-blur-md border-b border-[#DCDCD6]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
@@ -35,7 +57,7 @@ export const Navbar: React.FC = () => {
               <button
                 key={link.id}
                 id={`nav-link-${link.id}`}
-                onClick={() => setActiveView(link.id)}
+                onClick={() => handleNavClick(link.id)}
                 className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                   isActive
                     ? 'text-[#E56B2F] bg-[#E56B2F]/10 font-semibold'
@@ -93,7 +115,7 @@ export const Navbar: React.FC = () => {
               key={link.id}
               id={`mobile-nav-${link.id}`}
               onClick={() => {
-                setActiveView(link.id);
+                handleNavClick(link.id);
                 setMobileMenuOpen(false);
               }}
               className={`block w-full text-left px-3 py-2.5 rounded-md text-sm font-medium ${

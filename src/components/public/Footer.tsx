@@ -5,7 +5,33 @@ import { OFFICIAL_HELPLINES } from '../../data/nagpurData';
 import { Phone, Shield, ExternalLink, Heart, Lock } from 'lucide-react';
 
 export const Footer: React.FC = () => {
-  const { setActiveView } = useApp();
+  const { activeView, setActiveView } = useApp();
+
+  const handleAboutClick = () => {
+    if (activeView !== 'home') {
+      setActiveView('home');
+      setTimeout(() => {
+        const el = document.getElementById('about-section');
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    } else {
+      const el = document.getElementById('about-section');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  const handleHowItWorksClick = () => {
+    if (activeView !== 'home') {
+      setActiveView('home');
+      setTimeout(() => {
+        const el = document.getElementById('how-it-works-section');
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    } else {
+      const el = document.getElementById('how-it-works-section');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
 
   return (
     <footer className="bg-[#142C54] text-white border-t border-[#DCDCD6]/20">
@@ -43,7 +69,7 @@ export const Footer: React.FC = () => {
               <li>
                 <button
                   id="footer-nav-about-btn"
-                  onClick={() => setActiveView('about')}
+                  onClick={handleAboutClick}
                   className="hover:text-white transition-colors"
                 >
                   About MargRakshak
@@ -52,7 +78,7 @@ export const Footer: React.FC = () => {
               <li>
                 <button
                   id="footer-nav-how-it-works-btn"
-                  onClick={() => setActiveView('how-it-works')}
+                  onClick={handleHowItWorksClick}
                   className="hover:text-white transition-colors"
                 >
                   How the System Works

@@ -90,7 +90,14 @@ export const HeroCarousel: React.FC = () => {
 
             <button
               id="hero-how-it-works-btn"
-              onClick={() => setActiveView('how-it-works')}
+              onClick={() => {
+                const el = document.getElementById('how-it-works-section');
+                if (el) {
+                  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                } else {
+                  setActiveView('how-it-works');
+                }
+              }}
               className="flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white border border-white/30 px-5 py-3.5 rounded-md text-base font-semibold backdrop-blur-md transition-colors"
             >
               <span>How MargRakshak Works</span>

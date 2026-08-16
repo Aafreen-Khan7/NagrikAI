@@ -1,17 +1,12 @@
 import React from 'react';
-import { useApp } from '../../context/AppContext';
-import { Shield, Target, Cpu, Users, Award, CheckCircle2, ArrowRight } from 'lucide-react';
+import { Target, Cpu, Users, CheckCircle2 } from 'lucide-react';
 
 export const AboutPage: React.FC = () => {
-  const { setActiveView } = useApp();
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-10 lg:py-16 space-y-12">
       {/* Hero Header */}
       <div className="text-center space-y-4 max-w-3xl mx-auto">
-        <span className="text-xs font-bold uppercase tracking-wider text-[#E56B2F] bg-[#E56B2F]/10 px-3 py-1 rounded-full border border-[#E56B2F]/20">
-          Nagpur Traffic Intelligence
-        </span>
         <h1 className="text-3xl sm:text-4xl font-extrabold text-[#142C54] tracking-tight">
           About MargRakshak Platform
         </h1>
@@ -80,17 +75,6 @@ export const AboutPage: React.FC = () => {
             <span>Tamper-evident Immutable Audit Trails</span>
           </div>
         </div>
-      </div>
-
-      {/* Call to action */}
-      <div className="text-center pt-4">
-        <button
-          onClick={() => setActiveView('how-it-works')}
-          className="px-6 py-3 rounded-xl bg-[#142C54] hover:bg-[#1f3f72] text-white text-xs font-bold transition-colors inline-flex items-center gap-2"
-        >
-          <span>Explore How the System Works</span>
-          <ArrowRight className="w-4 h-4" />
-        </button>
       </div>
     </div>
   );
