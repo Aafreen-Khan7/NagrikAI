@@ -1,19 +1,14 @@
 import React from 'react';
-import { useApp } from '../../context/AppContext';
 import { 
   Radio, 
   Cpu, 
   Sparkles, 
   ShieldCheck, 
   Send, 
-  Activity, 
-  ArrowRight,
-  CheckCircle2,
   FileText
 } from 'lucide-react';
 
 export const HowItWorksPage: React.FC = () => {
-  const { setActiveView } = useApp();
 
   const workflowSteps = [
     {
@@ -112,27 +107,6 @@ export const HowItWorksPage: React.FC = () => {
             </div>
           );
         })}
-      </div>
-
-      {/* Interactive Trigger CTA */}
-      <div className="bg-[#142C54] text-white rounded-2xl p-8 flex flex-col sm:flex-row items-center justify-between gap-6">
-        <div className="space-y-1 text-center sm:text-left">
-          <h2 className="text-xl font-extrabold text-[#F4D8C7]">
-            Want to see this workflow in action?
-          </h2>
-          <p className="text-xs text-[#DCDCD6]">
-            Try our 1-click hackathon simulation demonstrating live incident injection and rapid police redeployment.
-          </p>
-        </div>
-
-        <button
-          id="how-it-works-demo-btn"
-          onClick={() => setActiveView('command-dashboard')}
-          className="px-6 py-3 rounded-xl bg-[#E56B2F] hover:bg-[#B94A1F] text-white text-xs font-bold transition-colors shrink-0 flex items-center gap-2 shadow-md"
-        >
-          <span>Open Command Center Demo</span>
-          <ArrowRight className="w-4 h-4" />
-        </button>
       </div>
     </div>
   );

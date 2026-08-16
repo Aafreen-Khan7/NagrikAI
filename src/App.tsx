@@ -240,9 +240,6 @@ const AppContent: React.FC = () => {
             <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="bg-[#142C54] text-white rounded-2xl p-8 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-6 shadow-md">
                 <div className="space-y-2 max-w-xl text-center md:text-left">
-                  <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-[#E56B2F]/20 text-[#F4D8C7] border border-[#E56B2F]/30 inline-block">
-                    Citizen Traffic Watch
-                  </span>
                   <h3 className="text-2xl font-extrabold text-white">
                     Spotted a Traffic Accident, Hazard, or Choke Point?
                   </h3>
