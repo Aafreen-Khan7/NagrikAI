@@ -1,0 +1,10 @@
+{
+  "name": "Remix MargRakshak",
+  "description": "AI-Assisted Traffic Risk \u0026 Police Deployment Decision Support Platform for Nagpur City",
+  "requestFramePermissions": [
+    "geolocation"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
