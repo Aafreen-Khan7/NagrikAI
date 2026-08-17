@@ -493,7 +493,7 @@ export const NagpurCityMap: React.FC<NagpurCityMapProps> = ({
                   : 'text-[#5E625F] hover:text-[#142C54]'
               }`}
             >
-              OSM Vector
+              Vector
             </button>
             <button
               id="tile-osm-btn"
@@ -504,7 +504,7 @@ export const NagpurCityMap: React.FC<NagpurCityMapProps> = ({
                   : 'text-[#5E625F] hover:text-[#142C54]'
               }`}
             >
-              OSM Classic
+              Classic
             </button>
             <button
               id="tile-dark-btn"
@@ -603,7 +603,7 @@ export const NagpurCityMap: React.FC<NagpurCityMapProps> = ({
         <form onSubmit={handleSearch} className="relative">
           <input
             type="text"
-            placeholder="Search Nagpur Chowk / Landmark (OSM)..."
+            placeholder="Search Nagpur Chowk / Landmark..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-8 pr-7 py-2 text-xs bg-white/95 backdrop-blur-md rounded-xl border border-[#DCDCD6] shadow-sm focus:outline-none focus:ring-1 focus:ring-[#E56B2F] text-[#142C54] placeholder-[#5E625F]"
@@ -644,7 +644,7 @@ export const NagpurCityMap: React.FC<NagpurCityMapProps> = ({
           <div className="flex items-center justify-between gap-2 border-b border-white/20 pb-1">
             <span className="font-extrabold text-[#F4D8C7] flex items-center gap-1.5">
               <RouteIcon className="w-3.5 h-3.5 text-[#E56B2F]" />
-              OSRM Open Tactical Route
+              Tactical Route
             </span>
             <button onClick={handleClearRoute} className="text-white/70 hover:text-white">
               <X className="w-3 h-3" />
@@ -689,8 +689,6 @@ export const NagpurCityMap: React.FC<NagpurCityMapProps> = ({
 
         {/* Open Source Tech Attribution Tag */}
         <div className="flex items-center gap-2 text-[10px] text-[#5E625F]">
-          <span className="font-semibold">Map Stack:</span>
-          <span className="bg-[#FAF8F4] px-2 py-0.5 rounded border border-[#DCDCD6]">OpenStreetMap + OSRM + Open-Meteo</span>
         </div>
       </div>
 
@@ -753,7 +751,7 @@ export const NagpurCityMap: React.FC<NagpurCityMapProps> = ({
               className="flex-1 py-2 text-xs font-bold rounded-xl bg-[#142C54] hover:bg-[#1f3f72] text-white transition-colors flex items-center justify-center gap-1.5"
             >
               <RouteIcon className="w-3.5 h-3.5 text-[#E56B2F]" />
-              <span>OSRM Route</span>
+              <span>Route</span>
             </button>
 
             <button
