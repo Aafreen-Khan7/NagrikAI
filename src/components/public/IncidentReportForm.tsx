@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { NAGPUR_JUNCTIONS } from '../../data/nagpurData';
+import { isCloudinaryConfigured, uploadEvidenceToCloudinary } from '../../services/margRakshakBackend';
 import { 
   AlertCircle, 
   Upload, 
@@ -8,7 +9,6 @@ import {
   Camera, 
   CheckCircle2, 
   Phone, 
-  Sparkles, 
   ShieldCheck, 
   ArrowRight,
   FileText,
@@ -27,16 +27,10 @@ export const IncidentReportForm: React.FC = () => {
   const [reporterPhone, setReporterPhone] = useState<string>('');
   const [optInWhatsapp, setOptInWhatsapp] = useState<boolean>(true);
 
-  // Upload and Simulated AI Analysis state
+  // Upload state
   const [evidencePreview, setEvidencePreview] = useState<string | null>(null);
-  const [analyzingImage, setAnalyzingImage] = useState<boolean>(false);
-  const [imageAnalysis, setImageAnalysis] = useState<{
-    confidence: number;
-    authenticity: 'Likely Authentic' | 'Potential AI/Stock' | 'Inconclusive';
-    exifDate: string;
-    compressionQuality: string;
-    notes: string;
-  } | null>(null);
+  const [evidenceFile, setEvidenceFile] = useState<File | null>(null);
+  const [uploadingEvidence, setUploadingEvidence] = useState<boolean>(false);
 
   // Submission result state
   const [submittedRefId, setSubmittedRefId] = useState<string | null>(null);
@@ -52,67 +46,36 @@ export const IncidentReportForm: React.FC = () => {
     { label: 'Other Hazard', value: 'Other', icon: '⚠️' },
   ];
 
-  // Preset sample evidence photos for testing
-  const sampleEvidenceImages = [
-    {
-      title: 'Sitabuldi Choke Collision',
-      url: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=800&auto=format&fit=crop&q=80',
-      analysis: {
-        confidence: 91,
-        authenticity: 'Likely Authentic' as const,
-        exifDate: '2026-03-29 18:14:02 IST (GPS Tagged)',
-        compressionQuality: 'Native Mobile JPEG - No manipulation detected',
-        notes: 'Real-world road lighting and physical debris consistent with ground geometry.',
-      },
-    },
-    {
-      title: 'Wardha Road Traffic Jam',
-      url: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=800&auto=format&fit=crop&q=80',
-      analysis: {
-        confidence: 88,
-        authenticity: 'Likely Authentic' as const,
-        exifDate: '2026-03-29 18:22:15 IST',
-        compressionQuality: 'Standard Camera Stream',
-        notes: 'Corroborated by high vehicle density sensor telemetry.',
-      },
-    },
-  ];
-
-  const handleSelectSample = (sample: typeof sampleEvidenceImages[0]) => {
-    setAnalyzingImage(true);
-    setEvidencePreview(sample.url);
-    setTimeout(() => {
-      setImageAnalysis(sample.analysis);
-      setAnalyzingImage(false);
-    }, 600);
-  };
-
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const url = URL.createObjectURL(file);
       setEvidencePreview(url);
-      setAnalyzingImage(true);
-      setTimeout(() => {
-        setImageAnalysis({
-          confidence: 86,
-          authenticity: 'Likely Authentic',
-          exifDate: new Date().toLocaleTimeString() + ' (Local Device)',
-          compressionQuality: 'Standard Mobile Format',
-          notes: 'EXIF metadata matches current device capture profile.',
-        });
-        setAnalyzingImage(false);
-      }, 700);
+      setEvidenceFile(file);
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!description.trim()) return;
     if (!reporterName.trim() || !reporterPhone.trim()) {
       alert('Citizen contact details are required before submitting the incident report.');
       return;
+    }
+
+    let cloudEvidenceUrl = evidencePreview || undefined;
+    if (evidenceFile && isCloudinaryConfigured()) {
+      try {
+        setUploadingEvidence(true);
+        const uploaded = await uploadEvidenceToCloudinary(evidenceFile);
+        cloudEvidenceUrl = uploaded.secure_url;
+      } catch (error) {
+        console.warn('Cloudinary upload failed. Falling back to local preview URL.', error);
+        cloudEvidenceUrl = evidencePreview || undefined;
+      } finally {
+        setUploadingEvidence(false);
+      }
     }
 
     const chosenJunction = NAGPUR_JUNCTIONS.find(j => j.id === selectedJunctionId);
@@ -128,16 +91,10 @@ export const IncidentReportForm: React.FC = () => {
       locationName,
       coordinates,
       description,
-      evidenceUrl: evidencePreview || undefined,
+      evidenceUrl: cloudEvidenceUrl,
+      evidenceType: cloudEvidenceUrl ? 'image' : 'none',
       reporterName: reporterName.trim() || undefined,
       reporterContact: reporterPhone.trim() || undefined,
-      evidenceAnalysis: imageAnalysis || (evidencePreview ? {
-        confidence: 85,
-        authenticity: 'Likely Authentic',
-        exifDate: 'Recent',
-        compressionQuality: 'Valid',
-        notes: 'Basic visual evidence attached.',
-      } : undefined),
     });
 
     setSubmittedRefId(refId);
@@ -189,7 +146,7 @@ export const IncidentReportForm: React.FC = () => {
                 setSubmittedRefId(null);
                 setDescription('');
                 setEvidencePreview(null);
-                setImageAnalysis(null);
+                setEvidenceFile(null);
               }}
               className="px-5 py-2.5 rounded-lg bg-[#FAF8F4] hover:bg-[#DCDCD6]/50 text-[#142C54] text-xs font-bold border border-[#DCDCD6] transition-colors"
             >
@@ -331,43 +288,9 @@ export const IncidentReportForm: React.FC = () => {
 
               </div>
 
-              {/* AI Image Verification Feedback Box (PRD Section 16) */}
               {evidencePreview && (
-                <div className="bg-white rounded-xl border border-[#DCDCD6] p-3 flex flex-col sm:flex-row gap-3">
-                  <img
-                    src={evidencePreview}
-                    alt="Evidence Preview"
-                    className="w-24 h-24 object-cover rounded-lg border border-[#DCDCD6] shrink-0"
-                  />
-
-                  <div className="flex-1 min-w-0 space-y-1.5">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-[#142C54] flex items-center gap-1.5">
-                        <Sparkles className="w-3.5 h-3.5 text-[#E56B2F]" />
-                        <span>AI Evidence Pre-Scan Status:</span>
-                      </span>
-                      
-                      {analyzingImage ? (
-                        <span className="text-[10px] text-[#E56B2F] font-bold animate-pulse">
-                          Scanning pixels & EXIF...
-                        </span>
-                      ) : imageAnalysis ? (
-                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#2E6B4A]/10 text-[#2E6B4A] border border-[#2E6B4A]/20">
-                          {imageAnalysis.authenticity} ({imageAnalysis.confidence}%)
-                        </span>
-                      ) : null}
-                    </div>
-
-                    {imageAnalysis && !analyzingImage && (
-                      <div className="text-[11px] text-[#5E625F] space-y-1">
-                        <p>{imageAnalysis.notes}</p>
-                        <div className="flex flex-wrap gap-3 text-[10px] text-gray-500 pt-1 border-t border-[#DCDCD6]">
-                          <span>EXIF Timestamp: <strong>{imageAnalysis.exifDate}</strong></span>
-                          <span>Format Integrity: <strong>{imageAnalysis.compressionQuality}</strong></span>
-                        </div>
-                      </div>
-                    )}
-                  </div>
+                <div className="rounded-lg border border-[#DCDCD6] bg-white px-3 py-2 text-[11px] text-[#5E625F]">
+                  Visual evidence attached and ready for upload.
                 </div>
               )}
             </div>
@@ -436,14 +359,14 @@ export const IncidentReportForm: React.FC = () => {
               <button
                 id="submit-incident-form-btn"
                 type="submit"
-                disabled={!certifiedAccurate}
+                disabled={!certifiedAccurate || uploadingEvidence}
                 className={`w-full py-3 px-6 rounded-xl font-extrabold text-sm transition-all shadow-md flex items-center justify-center gap-2 ${
-                  certifiedAccurate
+                  certifiedAccurate && !uploadingEvidence
                     ? 'bg-[#E56B2F] hover:bg-[#B94A1F] text-white cursor-pointer'
                     : 'bg-gray-300 text-gray-500 cursor-not-allowed shadow-none'
                 }`}
               >
-                <span>Submit Incident to Nagpur Traffic Police</span>
+                <span>{uploadingEvidence ? 'Uploading Evidence...' : 'Submit Incident to Nagpur Traffic Police'}</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>

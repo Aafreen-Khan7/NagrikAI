@@ -43,6 +43,8 @@ export const CitizenReportsQueue: React.FC = () => {
     return matchStatus && matchType;
   });
 
+  const formatTimeOnly = (value: string) => value.replace(/\s*\(.*\)$/, '').trim();
+
   const getStatusBadge = (status: IncidentStatus) => {
     switch (status) {
       case 'New':
@@ -203,7 +205,7 @@ export const CitizenReportsQueue: React.FC = () => {
                   {report.referenceId}
                 </td>
                 <td className="py-2.5 px-3 text-[#5E625F] whitespace-nowrap">
-                  {report.submittedAt}
+                  {formatTimeOnly(report.submittedAt)}
                 </td>
                 <td className="py-2.5 px-3 font-semibold text-[#252525]">
                   {report.type}
