@@ -8,28 +8,24 @@ export const Footer: React.FC = () => {
   const { activeView, setActiveView } = useApp();
 
   const handleAboutClick = () => {
-    if (activeView !== 'home') {
-      setActiveView('home');
+    setActiveView('about');
+
+    if (activeView === 'home') {
       setTimeout(() => {
         const el = document.getElementById('about-section');
         if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 100);
-    } else {
-      const el = document.getElementById('about-section');
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
 
   const handleHowItWorksClick = () => {
-    if (activeView !== 'home') {
-      setActiveView('home');
+    setActiveView('how-it-works');
+
+    if (activeView === 'home') {
       setTimeout(() => {
         const el = document.getElementById('how-it-works-section');
         if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 100);
-    } else {
-      const el = document.getElementById('how-it-works-section');
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
 

@@ -108,7 +108,12 @@ export const IncidentReportForm: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!description.trim()) return;
+    if (!reporterName.trim() || !reporterPhone.trim()) {
+      alert('Citizen contact details are required before submitting the incident report.');
+      return;
+    }
 
     const chosenJunction = NAGPUR_JUNCTIONS.find(j => j.id === selectedJunctionId);
     const locationName = customLocation.trim()
@@ -301,7 +306,6 @@ export const IncidentReportForm: React.FC = () => {
                 <label className="font-bold text-[#142C54] block">
                   4. Attach Visual Photo Evidence (Optional but recommended):
                 </label>
-                <span className="text-[11px] text-[#5E625F]">Assists AI Verification</span>
               </div>
 
               {/* Upload Dropzone */}
@@ -325,22 +329,6 @@ export const IncidentReportForm: React.FC = () => {
                   <span className="text-[10px] text-[#5E625F]">PNG, JPG, JPEG up to 10MB</span>
                 </label>
 
-                {/* Quick Sample Photos for Demonstration */}
-                <div className="mt-3 pt-3 border-t border-[#DCDCD6] flex flex-wrap items-center justify-center gap-2">
-                  <span className="text-[10px] font-bold text-[#5E625F] uppercase mr-1">
-                    Or select sample test capture:
-                  </span>
-                  {sampleEvidenceImages.map((samp, i) => (
-                    <button
-                      type="button"
-                      key={i}
-                      onClick={() => handleSelectSample(samp)}
-                      className="px-2.5 py-1 rounded bg-white hover:bg-[#DCDCD6]/50 border border-[#DCDCD6] text-[11px] font-semibold text-[#142C54]"
-                    >
-                      📷 {samp.title}
-                    </button>
-                  ))}
-                </div>
               </div>
 
               {/* AI Image Verification Feedback Box (PRD Section 16) */}
@@ -384,21 +372,23 @@ export const IncidentReportForm: React.FC = () => {
               )}
             </div>
 
-            {/* Step 5: Optional Reporter Information (PRD Section 13) */}
+            {/* Step 5: Reporter Information (Mandatory) */}
             <div className="bg-[#FAF8F4] p-4 rounded-xl border border-[#DCDCD6] space-y-3">
               <span className="font-bold text-[#142C54] block">
-                5. Citizen Contact Details (Optional):
+                5. Citizen Contact Details: <span className="text-red-500">*</span>
               </span>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <input
                   type="text"
-                  placeholder="Your Full Name (optional)"
+                  required
+                  placeholder="Your Full Name"
                   value={reporterName}
                   onChange={(e) => setReporterName(e.target.value)}
                   className="p-2 rounded-lg bg-white border border-[#DCDCD6] text-xs"
                 />
                 <input
                   type="tel"
+                  required
                   placeholder="Phone Number for SMS / WhatsApp updates"
                   value={reporterPhone}
                   onChange={(e) => setReporterPhone(e.target.value)}

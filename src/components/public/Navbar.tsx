@@ -17,20 +17,16 @@ export const Navbar: React.FC = () => {
 
   const handleNavClick = (linkId: string) => {
     if (linkId === 'about' || linkId === 'how-it-works') {
-      const sectionId = linkId === 'about' ? 'about-section' : 'how-it-works-section';
-      if (activeView !== 'home') {
-        setActiveView('home');
+      setActiveView(linkId as any);
+
+      if (activeView === 'home') {
+        const sectionId = linkId === 'about' ? 'about-section' : 'how-it-works-section';
         setTimeout(() => {
           const el = document.getElementById(sectionId);
           if (el) {
             el.scrollIntoView({ behavior: 'smooth', block: 'start' });
           }
         }, 100);
-      } else {
-        const el = document.getElementById(sectionId);
-        if (el) {
-          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
       }
     } else {
       setActiveView(linkId as any);
