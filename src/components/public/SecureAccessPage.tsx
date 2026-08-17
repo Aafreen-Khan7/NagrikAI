@@ -2,25 +2,32 @@ import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { UserRole } from '../../types';
 import { Logo } from '../Logo';
+import {
+  authenticateStaffCredential,
+  findStaffCredentialByServiceId,
+  getStaffAuthEmail,
+} from '../../data/staffCredentials';
+import {
+  isFirebaseAuthConfigured,
+  signInOrCreateWithEmailAndPassword,
+} from '../../services/firebaseAuthRest';
 import { 
   ShieldCheck, 
   Lock, 
   User, 
   Key, 
   ArrowRight, 
-  Sparkles, 
-  CheckCircle2, 
   Radio,
-  Sliders,
-  AlertCircle
+  Sliders
 } from 'lucide-react';
 
 export const SecureAccessPage: React.FC = () => {
   const { loginAs, setActiveView } = useApp();
   const [selectedRole, setSelectedRole] = useState<UserRole>('control_room_operator');
   const [serviceId, setServiceId] = useState<string>('NTP-CTL-401');
-  const [accessCode, setAccessCode] = useState<string>('••••••••');
+  const [accessCode, setAccessCode] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string>('');
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const handleRoleChange = (role: UserRole) => {
     setSelectedRole(role);
@@ -33,9 +40,41 @@ export const SecureAccessPage: React.FC = () => {
     }
   };
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    loginAs(selectedRole, selectedRole === 'police_officer' ? 'off-104' : undefined);
+    setErrorMessage('');
+
+    const credential = authenticateStaffCredential(serviceId, accessCode, selectedRole);
+    if (!credential) {
+      setErrorMessage('Invalid service ID, role, or password. Please check the credential doc and try again.');
+      return;
+    }
+
+    if (!isFirebaseAuthConfigured()) {
+      loginAs(credential.role, credential.officerId);
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      const email = getStaffAuthEmail(credential.serviceId);
+      await signInOrCreateWithEmailAndPassword(email, credential.password);
+      loginAs(credential.role, credential.officerId);
+    } catch (error) {
+      const fallbackCredential = findStaffCredentialByServiceId(serviceId);
+      if (fallbackCredential && fallbackCredential.password === accessCode) {
+        loginAs(fallbackCredential.role, fallbackCredential.officerId);
+        return;
+      }
+
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : 'Firebase authentication failed. Please verify your project configuration and credentials.',
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -141,38 +180,20 @@ export const SecureAccessPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Quick Demo 1-Click Launch Buttons */}
-          <div className="p-3 bg-[#FAF8F4] rounded-xl border border-[#DCDCD6] space-y-2">
-            <span className="text-[10px] font-bold text-[#5E625F] uppercase block">
-              1-Click Evaluator Quick Logins:
-            </span>
-            <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                id="quick-login-controller"
-                onClick={() => loginAs('control_room_operator')}
-                className="px-2.5 py-1 bg-white hover:bg-[#142C54] hover:text-white rounded border border-[#DCDCD6] text-[11px] font-semibold text-[#142C54] transition-colors"
-              >
-                🎯 Enter Command Centre (Controller)
-              </button>
-              <button
-                type="button"
-                id="quick-login-officer"
-                onClick={() => loginAs('police_officer', 'off-104')}
-                className="px-2.5 py-1 bg-white hover:bg-[#2E6B4A] hover:text-white rounded border border-[#DCDCD6] text-[11px] font-semibold text-[#142C54] transition-colors"
-              >
-                👮 Enter Officer Mobile Portal (MR-104)
-              </button>
+          {errorMessage && (
+            <div className="p-3 rounded-xl border border-red-200 bg-red-50 text-red-700 text-[11px] font-medium">
+              {errorMessage}
             </div>
-          </div>
+          )}
 
           <button
             type="submit"
             id="department-login-submit-btn"
+            disabled={isSubmitting}
             className="w-full py-3 rounded-xl bg-[#E56B2F] hover:bg-[#B94A1F] text-white font-extrabold text-xs transition-colors shadow-sm flex items-center justify-center gap-2"
           >
             <Lock className="w-3.5 h-3.5" />
-            <span>Authenticate & Access Operational Portal</span>
+            <span>{isSubmitting ? 'Authenticating...' : 'Authenticate & Access Operational Portal'}</span>
           </button>
         </form>
 

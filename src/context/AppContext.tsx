@@ -21,6 +21,12 @@ import {
   INITIAL_CITIZEN_REPORTS,
   INITIAL_AI_PROPOSALS,
 } from '../data/nagpurData';
+import {
+  isFirebaseConfigured,
+  loadCitizenReports,
+  saveCitizenReport,
+  seedCitizenReports,
+} from '../services/margRakshakBackend';
 
 interface AppContextType {
   // Navigation & Role
@@ -146,6 +152,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [deploymentChanges, setDeploymentChanges] = useState<DeploymentChange[]>([
     {
       id: 'chg-001',
+      officerName: 'Sub-Inspector Ananya Joshi',
       timestamp: '16:30 IST',
       previousLocation: 'Ajni Square',
       newLocation: 'Wardha Road (Chhatrapati Sq)',
@@ -233,6 +240,38 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [feedbackSubmissions, setFeedbackSubmissions] = useState<FeedbackSubmission[]>([]);
   const [activeDemoStep, setActiveDemoStep] = useState<number>(0);
 
+  useEffect(() => {
+    let isCancelled = false;
+
+    const hydrateBackend = async () => {
+      if (!isFirebaseConfigured()) {
+        return;
+      }
+
+      try {
+        const backendReports = await loadCitizenReports();
+        if (isCancelled) {
+          return;
+        }
+
+        if (backendReports.length > 0) {
+          setCitizenReports(backendReports);
+          return;
+        }
+
+        await seedCitizenReports(INITIAL_CITIZEN_REPORTS);
+      } catch (error) {
+        console.warn('MargRakshak backend bootstrap failed. Falling back to local demo data.', error);
+      }
+    };
+
+    void hydrateBackend();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, []);
+
   // Compute operational metrics
   const criticalHotspots = junctions.filter(j => j.riskLevel === 'Critical').length;
   const activeIncidents = citizenReports.filter(r => r.status !== 'Resolved' && r.status !== 'Rejected').length;
@@ -290,7 +329,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       ...reportData,
       id,
       referenceId: refId,
-      submittedAt: 'Just now (New)',
+      submittedAt: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + ' IST',
       status: 'New',
       priority: determinedPriority,
       riskImpactPoints: riskPoints,
@@ -304,6 +343,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
 
     setCitizenReports(prev => [newReport, ...prev]);
+    void saveCitizenReport(newReport).catch((error) => {
+      console.warn('Failed to persist citizen report to Firebase.', error);
+    });
 
     // Recalculate junction risk
     setJunctions(prev => prev.map(j => {
@@ -348,18 +390,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const report = citizenReports.find(r => r.id === reportId);
     if (!report) return;
 
-    setCitizenReports(prev => prev.map(r => {
-      if (r.id === reportId) {
-        return {
-          ...r,
-          status: 'Verified' as IncidentStatus,
-          verifiedBy: operatorName,
-          verifiedAt: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + ' IST',
-          actionTaken: notes || 'Verified by Control Room Operator. Deployment evaluation initiated.',
-        };
-      }
-      return r;
-    }));
+    const updatedReport: CitizenReport = {
+      ...report,
+      status: 'Verified' as IncidentStatus,
+      verifiedBy: operatorName,
+      verifiedAt: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + ' IST',
+      actionTaken: notes || 'Verified by Control Room Operator. Deployment evaluation initiated.',
+    };
+
+    setCitizenReports(prev => prev.map(r => (r.id === reportId ? updatedReport : r)));
+    void saveCitizenReport(updatedReport).catch((error) => {
+      console.warn('Failed to persist verified report.', error);
+    });
 
     setAuditLogs(prev => [
       {
@@ -383,18 +425,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const report = citizenReports.find(r => r.id === reportId);
     if (!report) return;
 
-    setCitizenReports(prev => prev.map(r => {
-      if (r.id === reportId) {
-        return {
-          ...r,
-          status: 'Rejected' as IncidentStatus,
-          verifiedBy: operatorName,
-          verifiedAt: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + ' IST',
-          actionTaken: `Rejected: ${reason}`,
-        };
-      }
-      return r;
-    }));
+    const updatedReport: CitizenReport = {
+      ...report,
+      status: 'Rejected' as IncidentStatus,
+      verifiedBy: operatorName,
+      verifiedAt: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + ' IST',
+      actionTaken: `Rejected: ${reason}`,
+    };
+
+    setCitizenReports(prev => prev.map(r => (r.id === reportId ? updatedReport : r)));
+    void saveCitizenReport(updatedReport).catch((error) => {
+      console.warn('Failed to persist rejected report.', error);
+    });
 
     setAuditLogs(prev => [
       {
@@ -418,16 +460,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const report = citizenReports.find(r => r.id === reportId);
     if (!report) return;
 
-    setCitizenReports(prev => prev.map(r => {
-      if (r.id === reportId) {
-        return {
-          ...r,
-          status: 'Action Initiated' as IncidentStatus,
-          actionTaken: `${actionType} ${note ? `(${note})` : ''}`,
-        };
-      }
-      return r;
-    }));
+    const updatedReport: CitizenReport = {
+      ...report,
+      status: 'Action Initiated' as IncidentStatus,
+      actionTaken: `${actionType} ${note ? `(${note})` : ''}`.trim(),
+    };
+
+    setCitizenReports(prev => prev.map(r => (r.id === reportId ? updatedReport : r)));
+    void saveCitizenReport(updatedReport).catch((error) => {
+      console.warn('Failed to persist report action.', error);
+    });
 
     setAuditLogs(prev => [
       {
@@ -735,6 +777,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setDeploymentChanges(prev => [
       {
         id: `chg-${Date.now()}`,
+        officerName: officer.name,
         timestamp: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + ' IST',
         previousLocation: prevLocation,
         newLocation: destination.name,

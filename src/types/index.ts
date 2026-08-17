@@ -176,6 +176,7 @@ export interface DeploymentRecord {
 
 export interface DeploymentChange {
   id: string;
+  officerName: string;
   timestamp: string;
   previousLocation: string;
   newLocation: string;
